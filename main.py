@@ -1,11 +1,29 @@
 import enum
-
+import random as rand
 import pygame
 
 class Side(enum.Enum):
     LEFT = 0,
     RIGHT = 1,
     NONE = 2
+
+def update_branches():
+    global branch_positions
+
+    # move all the branchs down one spot in the list (0 is top, 5 is bottom)
+    for i in range(5, 0, -1):
+        branch_positions[i] = branch_positions[i - 1]
+
+    # spawn new branch at pos 0
+    rand.seed()
+    randomNum = rand.randint(0, 4)
+    if randomNum == 0:
+        branch_positions[0] = Side.LEFT
+    elif randomNum == 1:
+        branch_positions[0] = Side.RIGHT
+    else:
+        branch_positions[0] = Side.NONE
+
 
 pygame.init()
 
@@ -59,12 +77,13 @@ player_group.add(axe)
 # score
 text_color = pygame.color.Color('white')
 score = 0
-text = 'Score: ' + str(score)
-score_txt_surface = font.render(text, True, text_color)
 
+
+# branches
 branch_texture = pygame.image.load('graphics/branch.png').convert_alpha()
 branches = []
-for i in range(6):
+num_branches = 6
+for i in range(num_branches):
     branch = pygame.sprite.Sprite()
     branch.image = branch_texture
     branch.rect = branch.image.get_rect()
@@ -74,19 +93,56 @@ branch_positions = [Side.NONE for i in range(6)]
 
 
 game_over = False
+accept_input = True
 
 while True:
 
     for event in pygame.event.get():
+
+        if event.type == pygame.KEYUP and not accept_input:
+            accept_input = True
+
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 exit(0)
 
+            if event.key == pygame.K_RIGHT and accept_input:
+                player.side = Side.RIGHT
+                score += 1
+
+                # add some time
+                time_remaining += (2 / score) + .15
+                axe.rect.topleft = (axe_position_right, axe.rect.y)
+                player.rect.topleft = (1200, 720)
+                update_branches()
+                accept_input = False
+
+
+            if event.key == pygame.K_LEFT and accept_input:
+                player.side = Side.LEFT
+                score += 1
+
+                # add some time
+                time_remaining += (2 / score) + .15
+                axe.rect.topleft = (axe_position_left, axe.rect.y)
+                player.rect.topleft = (580, 720)
+                update_branches()
+                accept_input = False
+
     screen.blit(bg, (0, 0))
+    text = 'Score: ' + str(score)
+    score_txt_surface = font.render(text, True, text_color)
     screen.blit(score_txt_surface, (0, 0))
     treeGroup.draw(screen)
     player_group.draw(screen)
+
+    # for i in range(num_branches):
+    #     height = i * 150
+    #     if branch_positions[i] == Side.LEFT:
+    #         # move the sprite to the left side
+    #         branches[i].rect.topleft = (610, height)
+
 
     # update time bar
     time_remaining -= dt / 1000

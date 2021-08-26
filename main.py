@@ -80,14 +80,13 @@ player_group.add(axe)
 text_color = pygame.color.Color('white')
 score = 0
 
-
 # branches
 branch_texture = pygame.image.load('graphics/branch.png').convert_alpha()
-branches = []
+branches = pygame.sprite.Group()
 num_branches = 6
 for i in range(num_branches):
     branch = Branch(branch_texture)
-    branches.append(branch)
+    branches.add(branch)
 branch_positions = [Side.NONE for i in range(6)]
 
 
@@ -129,19 +128,20 @@ while True:
                 update_branches()
                 accept_input = False
 
+    # update branch position
+    for i in range(num_branches):
+        height = i * 150
+        if branch_positions[i] == Side.LEFT:
+            # move the sprite to the left side
+            branches.sprites()[i].rect.topleft = (610, height)
+
     screen.blit(bg, (0, 0))
     text = 'Score: ' + str(score)
     score_txt_surface = font.render(text, True, text_color)
     screen.blit(score_txt_surface, (0, 0))
     treeGroup.draw(screen)
+    branches.draw(screen)
     player_group.draw(screen)
-
-    # for i in range(num_branches):
-    #     height = i * 150
-    #     if branch_positions[i] == Side.LEFT:
-    #         # move the sprite to the left side
-    #         branches[i].rect.topleft = (610, height)
-
 
     # update time bar
     time_remaining -= dt / 1000

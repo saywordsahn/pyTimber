@@ -2,6 +2,8 @@ import enum
 import random as rand
 import pygame
 
+from branch import Branch
+
 class Side(enum.Enum):
     LEFT = 0,
     RIGHT = 1,
@@ -84,10 +86,7 @@ branch_texture = pygame.image.load('graphics/branch.png').convert_alpha()
 branches = []
 num_branches = 6
 for i in range(num_branches):
-    branch = pygame.sprite.Sprite()
-    branch.image = branch_texture
-    branch.rect = branch.image.get_rect()
-    branch.rect.topleft = (-2000, -2000)
+    branch = Branch(branch_texture)
     branches.append(branch)
 branch_positions = [Side.NONE for i in range(6)]
 

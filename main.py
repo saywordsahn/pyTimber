@@ -3,30 +3,8 @@ import random as rand
 import pygame
 
 from branch import Branch
-
-class Side(enum.Enum):
-    LEFT = 0,
-    RIGHT = 1,
-    NONE = 2
-
-def update_branches():
-    global branch_positions
-
-    # move all the branchs down one spot in the list (0 is top, 5 is bottom)
-    for i in range(5, 0, -1):
-        branch_positions[i] = branch_positions[i - 1]
-
-    # spawn new branch at pos 0
-    rand.seed()
-    randomNum = rand.randint(0, 4)
-    if randomNum == 0:
-        branch_positions[0] = Side.LEFT
-    elif randomNum == 1:
-        branch_positions[0] = Side.RIGHT
-    else:
-        branch_positions[0] = Side.NONE
-
-
+from side import Side
+from branches import Branches
 pygame.init()
 
 clock = pygame.time.Clock()
@@ -80,14 +58,7 @@ player_group.add(axe)
 text_color = pygame.color.Color('white')
 score = 0
 
-# branches
-branch_texture = pygame.image.load('graphics/branch.png').convert_alpha()
-branches = pygame.sprite.Group()
-num_branches = 6
-for i in range(num_branches):
-    branch = Branch(branch_texture)
-    branches.add(branch)
-branch_positions = [Side.NONE for i in range(6)]
+branches = Branches()
 
 
 game_over = False
@@ -113,7 +84,7 @@ while True:
                 time_remaining += (2 / score) + .15
                 axe.rect.topleft = (axe_position_right, axe.rect.y)
                 player.rect.topleft = (1200, 720)
-                update_branches()
+                branches.update()
                 accept_input = False
 
 
@@ -125,15 +96,11 @@ while True:
                 time_remaining += (2 / score) + .15
                 axe.rect.topleft = (axe_position_left, axe.rect.y)
                 player.rect.topleft = (580, 720)
-                update_branches()
+                branches.update()
                 accept_input = False
 
-    # update branch position
-    for i in range(num_branches):
-        height = i * 150
-        if branch_positions[i] == Side.LEFT:
-            # move the sprite to the left side
-            branches.sprites()[i].rect.topleft = (610, height)
+    if branches.bottom_branch_position == player.side:
+        game_over = True
 
     screen.blit(bg, (0, 0))
     text = 'Score: ' + str(score)

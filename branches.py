@@ -13,6 +13,8 @@ class Branches(pygame.sprite.Group):
 
     def update(self):
 
+        self.bottom_branch_position = Side.NONE
+
         for branch in self.sprites():
             branch.update()
 

@@ -1,11 +1,13 @@
 import enum
 import random as rand
 import pygame
-
+from sounds import Sounds
 from branch import Branch
 from side import Side
 from branches import Branches
 pygame.init()
+
+sounds = Sounds(.25)
 
 clock = pygame.time.Clock()
 fps = 60
@@ -84,6 +86,7 @@ while True:
 
             if not game_over:
                 if event.key == pygame.K_RIGHT and accept_input:
+                    sounds.chop_fx.play()
                     player.side = Side.RIGHT
                     score += 1
 
@@ -96,6 +99,7 @@ while True:
 
 
                 if event.key == pygame.K_LEFT and accept_input:
+                    sounds.chop_fx.play()
                     player.side = Side.LEFT
                     score += 1
 
@@ -106,13 +110,14 @@ while True:
                     branches.update()
                     accept_input = False
 
-    if branches.bottom_branch_position == player.side:
+    if branches.bottom_branch_position == player.side and not game_over:
         print('branch pos:',branches.bottom_branch_position)
         print(player.side)
         grave.rect.topleft = player.rect.topleft
         player_group.remove(player)
         player_group.remove(axe)
         player_group.add(grave)
+        sounds.death_fx.play()
         text = 'YOU WERE CRUSHED!!! '
         game_over_text_surface = font.render(text, True, text_color)
         game_over = True
